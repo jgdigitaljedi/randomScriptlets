@@ -17,8 +17,8 @@ def fibo(num)
 	return arr
 end
 
-# puts  "How many numbers of the Fibonacci sequence do you want?"
+puts  "How many numbers of the Fibonacci sequence do you want?"
 x = gets.chomp.to_i
 result = fibo(x)
 puts result
-fibo(x)
+# fibo(x)
