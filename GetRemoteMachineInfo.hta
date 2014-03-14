@@ -1,0 +1,181 @@
+<HTML>
+<HEAD>
+<HTA:Application
+    Border = Thick
+    BorderStyle = Complex
+    ShowInTaskBar = YES
+    MaximizeButton = YES
+    MinimizeButton = YES
+>
+<SCRIPT LANGUAGE="VBScript">
+Sub window_onLoad
+    Set objDocument = self.Document
+    objDocument.open
+
+'Get name of target computer from user
+strComputer = InputBox("Enter the name or IP of the computer you want information from. Leave blank and hit 'Enter' to exit:","Target system")
+
+'Verify information was entered by the user and close window if there was none.
+If strcomputer = "" Then Window.Close()
+
+'Ping computer specified by user input. If the computer doesn't respond to a ping, display a message box to the user
+'letting them know.  Then, close window.
+Set objPing = GetObject("winmgmts:{impersonationLevel=impersonate}")._
+    ExecQuery("select * from Win32_PingStatus where address = '"_
+        & strcomputer & "'")
+For Each objStatus in objPing
+    If IsNull(objStatus.StatusCode) or objStatus.StatusCode<>0 Then
+    MsgBoxValue = MsgBox ("Computer " & strComputer & " cannot be reached", 65, "Computer unavailable")
+    window.close()
+    End If
+Next
+
+Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & strComputer & "\root\cimv2")
+
+'Define constants
+Const wbemFlagReturnImm = &h10
+Const wbemFlagForward = &h20
+Const HARD_DISK = 3
+
+'Query the WMI information of the computer
+Set colItems = objWMIService.ExecQuery( "Select * from Win32_ComputerSystem", , 48 )
+For Each objItem in colItems
+    strComputer = objItem.Name
+Next
+
+'Query processor properties
+Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_Processor", "WQL", wbemFlagReturnImm + wbemFlagForward)
+
+'Prepare display of results for processor entries
+For Each objItem In colItems
+    ProcType = ltrim(objItem.Name)
+Next
+
+Set objDomain = getObject("LDAP://rootDse")
+DC = objDomain.Get("dnsHostName")
+
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_OperatingSystem")
+
+'Query the OS properties
+Set colOperatingSystems = objWMIService.ExecQuery _
+    ("SELECT * FROM Win32_OperatingSystem")
+For Each objOperatingSystem in colOperatingSystems
+    OS = objOperatingSystem.Caption
+    OSVersion = objOperatingSystem.Version
+Next
+
+'Set variable values for OS properties retrieved
+For Each objOperatingSystem in colSettings
+    OSServicePack = objOperatingSystem.ServicePackMajorVersion
+    WinDir = objOperatingSystem.WindowsDirectory
+    PhysMem = objOperatingSystem.FreePhysicalMemory
+    VirtMem = objOperatingSystem.TotalVirtualMemorySize
+    AvailVirtMem = objOperatingSystem.FreeVirtualMemory
+Next
+
+'Collect information about the computer itself, or the motherboard if it's a custom-built PC
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_ComputerSystem")
+
+For Each objComputer in colSettings
+    CompName = objComputer.Name
+        CompManufacturer = objComputer.Manufacturer
+        CompModel = objComputer.Model
+    CompPhysMem = objComputer.TotalPhysicalMemory
+Next
+
+'Find out who is logged in on the computer and store the username
+Set colComputer = objWMIService.ExecQuery _
+    ("Select * from Win32_ComputerSystem")
+For Each objComputer in colComputer
+    UserName = objComputer.UserName
+Next
+
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_Processor")
+
+Set colSettings = objWMIService.ExecQuery _
+    ("Select * from Win32_BIOS")
+
+For Each objBIOS in colSettings
+    BIOSVer = objBIOS.Version
+Next
+
+'Get hard drive information
+strComputer = "."
+Set colDisks = objWMIService.ExecQuery _
+    ("Select * from Win32_LogicalDisk Where DriveType = " & HARD_DISK & "")
+
+For Each objDisk in colDisks
+    HDID = objDisk.DeviceID       
+    HDFree = objDisk.FreeSpace
+Next
+
+'Begin displaying the information
+objdocument.WriteLn "<B>"
+objdocument.WriteLn "<U>"
+objdocument.WriteLn "Computer Information" & "<br>"
+objdocument.WriteLn "</U>"
+objdocument.WriteLn "</B>"
+objdocument.WriteLn "Computer Name:        " & CompName & "<br>"
+
+'Get IP address of the computer and display it in the window
+Set IPConfigSet = objWMIService.ExecQuery _
+    ("Select * from Win32_NetworkAdapterConfiguration Where IPEnabled=TRUE")
+ 
+For Each IPConfig in IPConfigSet
+    If Not IsNull(IPConfig.IPAddress) Then
+        For i=LBound(IPConfig.IPAddress) to UBound(IPConfig.IPAddress)
+            objdocument.WriteLn "IP Address:        " & IPConfig.IPAddress(i) & "<br>"
+        Next
+    End If
+Next
+
+objdocument.WriteLn "Computer Manufacturer:    " & CompManufacturer & "<br>"
+objdocument.WriteLn "Computer Model:        " & CompModel & "<br>"
+objdocument.WriteLn "Processor Type:        " & ProcType & "<br>"
+objdocument.WriteLn "BIOS Version:        " & BIOSVer & "<br>"
+objdocument.WriteLn "User Logged In:        " & UserName & "<br>"
+objdocument.WriteLn "DC Logged Onto:        " & DC & "<br>"
+objdocument.WriteLn "<br>"
+
+objdocument.WriteLn "<B>"
+objdocument.WriteLn "<U>"
+objdocument.WriteLn "Operating System Information" & "<br>"
+objdocument.WriteLn "</U>"
+objdocument.WriteLn "</B>"
+objdocument.WriteLn "OS:        " & OS & "<br>"
+objdocument.WriteLn "OS Version:    " & OSVersion & "<br>"
+objdocument.WriteLn "OS Service Pack:    " & OSServicePack & "<br>"
+objdocument.WriteLn "Windows Directory:    " & WinDir & "<br>"
+objdocument.WriteLn "<br>"
+
+objdocument.WriteLn "<B>"
+objdocument.WriteLn "<U>"
+objdocument.WriteLn "Hard Drive Information" & "<br>"
+objdocument.WriteLn "</U>"
+objdocument.WriteLn "</B>"
+objdocument.WriteLn "Hard Drive ID:        " & HDID & "<br>"
+objdocument.WriteLN "Free Space:        " & HDFree & "<br>"
+objdocument.WriteLN "<br>"
+
+objdocument.WriteLn "<B>"
+objdocument.WriteLn "<U>"
+objdocument.WriteLn "Memory Information" & "<br>"
+objdocument.WriteLn "</U>"
+objdocument.WriteLn "</B>"
+objdocument.WriteLn "Total Physical Memory:    " & CompPhysMem & "<br>"
+objdocument.WriteLn "Free Physical Memory:    " & PhysMem & "<br>"
+objdocument.WriteLn "Total Virtual Memory:    " & VirtMem & "<br>"
+objdocument.WriteLn "Free Virtual Memory:    " & AvailVirtMem & "<br>"
+objdocument.WriteLn "<br>"
+
+End Sub
+
+</SCRIPT>
+</HEAD>
+<BODY>
+</BODY>
+</HTML>
+  
