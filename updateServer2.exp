@@ -1,0 +1,22 @@
+#!/usr/bin/expect
+
+set login "digitaljedi"
+set addr "192.168.1.6"
+stty -echo
+send_user -- "Password for server: "
+expect_user -re "(.*)\n"
+send_user "\n"
+stty echo
+set pw $expect_out(1,string)
+
+
+spawn ssh $login@$addr
+expect "$login@$addr\'s password:"
+send "$pw\r"
+expect "*?.ssh/id_rsa':"
+send "$pw\r"
+expect "${login}@"
+send "sudo apt-get dist-upgrade\r"
+expect "*?assword for digitaljedi:"
+send "$pw\r"
+interact
