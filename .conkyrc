@@ -1,0 +1,77 @@
+######################
+# - Conky settings - #
+######################
+update_interval 1
+total_run_times 0
+net_avg_samples 1
+cpu_avg_samples 1
+
+imlib_cache_size 0
+double_buffer yes
+no_buffers yes
+
+#####################
+# - Text settings - #
+#####################
+use_xft yes
+xftfont Ubuntu:size=9
+override_utf8_locale yes
+text_buffer_size 2048
+#max_text_width 54
+				
+
+#############################
+# - Window specifications - #
+#############################
+own_window_class Conky
+own_window yes
+own_window_type desktop
+own_window_transparent yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+#own_window_argb_visual yes
+#own_window_argb_value 100
+
+alignment tr
+gap_x 5
+gap_y 30
+minimum_size 350 300
+maximum_width 350
+
+
+default_bar_size 60 8
+
+#########################
+# - Graphics settings - #
+#########################
+draw_shades no
+
+default_color efefef
+default_shade_color 1d1d1d
+color0 ffffff
+color1 ff9900
+color2 ffffff
+
+
+
+#lua_load ~/.conky/conkybg.lua
+#lua_draw_hook_pre conky_draw_bg
+
+TEXT
+${voffset 5}
+${goto 92}CPU1  ${font Ubuntu:style=Bold:size=9}${color1}${cpu cpu1}%${font}${color} ${alignr 15}Temp: ${color1}${font Ubuntu:style=Bold:size=9}${color1}${hwmon temp 1}°C${color}${font}  
+
+${goto 92}CPU2  ${font Ubuntu:style=Bold:size=9}${color1}${cpu cpu2}%${font}${color} ${alignr 15} 
+
+
+${goto 92}RAM:${color1} ${font Ubuntu:style=Bold:size=9}${memperc}%${font}${color}${font Ubuntu:style=Bold:size=9}${font}  Free: ${font Ubuntu:style=Bold:size=9}${color1}${memeasyfree}${color} ${font}${alignr 22}  Used: ${font Ubuntu:style=Bold:size=9}${color1}${mem}${color}${font}
+
+${goto 92}HDD:${color1} ${font Ubuntu:style=Bold:size=9}${fs_used_perc /home}%${font}${color}  Free: ${color1}${font Ubuntu:style=Bold:size=9}${fs_free /home}${color}${font} ${alignr 22}  Used: ${font Ubuntu:style=Bold:size=9}${color1}${fs_used /home}${color}${font}
+
+
+
+${image ~/.conky/base.png -p 10,0 -s 339x86}${image ~/.conky/base.png -p 10,73 -s 339x86}${image ~/.conky/Task_Manager.png -p 32,20 -s 45x45}${image ~/.conky/Memory.png -p 32,93 -s 45x45}
+${voffset -25}${font Source Sans Pro:style=Bold:size=10}${color1}${rss http://feeds.feedburner.com/AndroidPolice 15 feed_title}${color}${font}
+${font Source Sans Pro:size=9}${color0}${rss http://feeds.feedburner.com/AndroidPolice 15 item_titles 7}${color}${font}
+
+${font Source Sans Pro:style=Bold:size=10}${color1}${rss http://xda-developers.com/rss 20 feed_title}${color}${font}
+${font Source Sans Pro:size=9}${color0}${rss http://xda-developers.com/rss 20 item_titles 7}${color}${font}
