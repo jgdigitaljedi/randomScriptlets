@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 import os
 import shutil
@@ -6,7 +7,7 @@ rootdir = '/home/digitaljedi/code/test/src'
 outdir = '/home/digitaljedi/code/test/result'
 outdir2 = '/home/digitaljedi/code/test/result'
 ext = '.gen'
-ext2 = '.32x'
+ext2 = '.32x' #in case your directory has multiple rom types
 suffix_arr = ['(U) [!]', '(U)', '(U) [f2]', '(U) [f1]', '(U) [h2C]', '(U) [h2]', '(U) [h1C]', '(U) [h1]', 
 '(UE) [!]', '(UE)', '(UE) [f2]', '(UE) [f1]', '(UE) [h2C]', '(UE) [h2]', '(UE) [h1C]', '(UE) [h1]',
 '(JUE) [!]', '(JUE)', '(JUE) [f2]', '(JUE) [f1]', '(JUE) [h2C]', '(JUE) [h2]', '(JUE) [h1C]', '(JUE) [h1]',
